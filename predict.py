@@ -3,11 +3,11 @@ import numpy as np
 import os
 import sys
 from PIL import Image, ImageDraw, ImageFont
+from utilities import get_root_path
 
 pic_px = 64
 pic_py = 64
 pic_depth = 3
-root_path = os.path.dirname(sys.argv[0])
 
 
 def load_and_process_image():
@@ -89,6 +89,7 @@ def load_model(filename):
 
 
 if __name__ == '__main__':
+    root_path = get_root_path()
     model_filename = 'mod-32-64-16-6_0.1-0.04-0.12_0.00074_32_1000_p0.871_r0.842_F0.856'
     Magus = load_model(model_filename)
     print('Predicting by', model_filename, 'model')

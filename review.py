@@ -3,6 +3,7 @@ import sys
 import re
 import _pickle as pickle
 import matplotlib.pyplot as plt
+from utilities import get_root_path
 
 
 def plot_graph(path):
@@ -13,14 +14,16 @@ def plot_graph(path):
     path -- path to scan for models histories
     """
 
-    dir_regex = r"^mod"
+    not_model_dir_regex = r"\.log$"
     histories = {}
 
     with os.scandir(path) as entries:
         for entry in entries:
-            if entry.is_dir and re.match(dir_regex, entry.name):
+            try:
                 with open(path + entry.name + '/history.pkl', 'rb') as source:
                     histories['/'.join(entry.name.split('_')[:3])] = pickle.load(source)
+            except NotADirectoryError:
+                pass
     plt.figure(figsize=(11, 6))
     for key, item in enumerate(histories):
         history = histories[item]
@@ -38,8 +41,9 @@ def plot_graph(path):
 
 
 if __name__ == '__main__':
-    root_path = os.path.dirname(sys.argv[0])
+    root_path = get_root_path()
     review_path = os.path.join(root_path, 'review/')
     plot_graph(review_path)
+    sys.exit(0)
 
 

@@ -2,9 +2,11 @@ import tensorflow as tf
 import os
 import sys
 from time import time
-from utilities import join_list_to_string, make_directory, get_readable_runtime, get_readable_date
+from utilities import join_omnilist_to_string_with_prefix, make_directory, get_readable_runtime, get_readable_date
 from specific_utilities import load_data, make_name_and_path, add_results_string
 from specific_utilities import save_model_and_history, draw_model_diagram
+from utilities import get_root_path
+from review import plot_graph
 
 
 def make_blocks(layers_units, drop_prob):
@@ -23,9 +25,8 @@ def make_blocks(layers_units, drop_prob):
     return basic_blocks
 
 
-script_root_path = os.path.dirname(sys.argv[0])
-
-X_train, Y_train, X_dev, Y_dev, input_size = load_data(script_root_path)
+root_path = get_root_path()
+X_train, Y_train, X_dev, Y_dev, input_size = load_data(root_path)
 
 # setting model and experiments series hyper-parameters
 # parameters to tinker around: layers - number of units of hidden layers !NB input counts as layer0
@@ -34,18 +35,23 @@ X_train, Y_train, X_dev, Y_dev, input_size = load_data(script_root_path)
 #                              num_epochs - number of epochs of training
 #                              mini_batch_size - self-explanatory
 # options: verbose - .fit method parameter, google for more info
-#          stdout_to_file - set to True if you want to examine details of the run later, False for standard command line
+#          stdout_to_file - set to True to send output to log file, False for standard command line output
+#          review_results - plot graphs for the run results
+#          draw_model - draw model diagram into file
 
 layers = [input_size, 64, 32, 16, 6, ]
-drop_prob_layers = [.1, .2, .1, ]
-learning_rate_range = [.1, .01, .001, ]
-num_epochs = 3
+drop_prob_layers = [.05, .1, .1, ]
+learning_rate_range = [.05, .01, .002, ]
+num_epochs = 200
 mini_batch_size = 32
 verbose = 1
-stdout_to_file = True
+stdout_to_file = False
+review_results = True
+draw_model = False
 
-layers_string = join_list_to_string(layers[1:], '-', prefix='mod')
-run_root_path = os.path.join(script_root_path, layers_string)
+layers_string = join_omnilist_to_string_with_prefix(layers[1:], '-', prefix='mod')
+run_root_path = os.path.join(root_path, layers_string)
+print('run_root_path:', run_root_path)
 make_directory(run_root_path)
 
 # business loop
@@ -65,13 +71,12 @@ for learning_rate in learning_rate_range:
 
     else:  # shadow: there's no such directory or the run hasn't been finished
 
-        log_filename = 'run_' + get_readable_date(time())
-        log_start_message = '======== Model ' + model_name + ' training started ' + get_readable_date(time())
+        log_start_message = 'Model ' + model_name + ' training started ' + get_readable_date(time())
 
         if stdout_to_file:
-            sys.stdout = open(os.path.join(run_root_path, (log_filename + '.log')), 'w')
+            sys.stdout = open(os.path.join(run_root_path, (model_name + '.log')), 'a')
         else:
-            with open(os.path.join(run_root_path, (log_filename + '.log')), 'w') as logfile:
+            with open(os.path.join(run_root_path, (model_name + '.log')), 'a') as logfile:
                 logfile.write(log_start_message)
 
         print(log_start_message)
@@ -121,26 +126,34 @@ for learning_rate in learning_rate_range:
         eval_results_dict = dict(zip(Magus.metrics_names, eval_results))
 
         #  calculating harmonic mean of precision and recall = F measure, adding it to zipped eval_results dict
-        f_measure = 2 * (eval_results[1] * eval_results[2]) / (eval_results[1] + eval_results[2])
+        try:
+            f_measure = 2 * (eval_results[1] * eval_results[2]) / (eval_results[1] + eval_results[2])
+        except ZeroDivisionError:
+            f_measure = 0
         eval_results_dict['F-measure'] = f_measure
 
         print('Model evaluation results:', eval_results_dict)
 
-        save_model_and_history(Magus, model_path, model_training_history)  # Some homage to Fowles :)
+        save_model_and_history(Magus, model_path, model_training_history)  # Yup, Magus. Some homage to the Fowles :)
 
         local_toc = time()
         print('Model trained and saved in {}\n'.format(get_readable_runtime(local_tic, local_toc)))
 
-        # closing stdout redirect to the run logfile
+        # closing stdout redirect to the log file
         if stdout_to_file:
             sys.stdout.close()
 
-        add_results_string(run_root_path, model_name, eval_results_dict, log_filename)
+        add_results_string(run_root_path, eval_results_dict, model_name)
 
-try:
-    draw_model_diagram(Magus, run_root_path)
-except NameError:
-    pass
+if review_results:
+    plot_graph(run_root_path + '/')
+
+if draw_model:
+    try:
+        draw_model_diagram(Magus, run_root_path, layers_string)
+    except NameError:
+        print('Draw error')
+        pass
 
 
 
