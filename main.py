@@ -120,7 +120,8 @@ for learning_rate in learning_rate_range:
             batch_size=mini_batch_size,
             epochs=num_epochs,
             verbose=verbose,
-            shuffle=True)
+            shuffle=True
+        )
 
         eval_results = Magus.evaluate(X_dev, Y_dev, verbose=0)
         eval_results_dict = dict(zip(Magus.metrics_names, eval_results))

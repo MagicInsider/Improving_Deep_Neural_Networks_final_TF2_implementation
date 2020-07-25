@@ -29,7 +29,7 @@ def load_data(root_path):
     dev_set_x_orig = np.array(dev_dataset["test_set_x"][:])  # dev set features
     dev_set_y_orig = np.array(dev_dataset["test_set_y"][:])  # dev set labels
 
-    n_y = len(np.array(dev_dataset["list_classes"][:]))  # the number of Softmax classes
+    classes = len(np.array(dev_dataset["list_classes"][:]))  # the number of Softmax classes
 
     # Flatten training and dev images into vectors
     X_train_flatten = train_set_x_orig.reshape(train_set_x_orig.shape[0], -1)
@@ -43,9 +43,9 @@ def load_data(root_path):
     train_set_y_orig = train_set_y_orig.reshape((1, train_set_y_orig.shape[0]))
     dev_set_y_orig = dev_set_y_orig.reshape((1, dev_set_y_orig.shape[0]))
 
-    # Convert training and dev labels to one hot matrices with values [0..n_y], where n_y is the number of classes
-    Y_train = convert_to_one_hot(train_set_y_orig, n_y)
-    Y_dev = convert_to_one_hot(dev_set_y_orig, n_y)
+    # Convert labels to one hot matrices with values [0..classes], where classes is the number of classes
+    Y_train = convert_to_one_hot(train_set_y_orig, classes)
+    Y_dev = convert_to_one_hot(dev_set_y_orig, classes)
 
     input_size = X_train.shape[1]
 
