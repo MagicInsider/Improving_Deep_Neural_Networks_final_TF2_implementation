@@ -2,10 +2,8 @@ import tensorflow as tf
 import os
 import sys
 from time import time
-from utilities import join_omnilist_to_string_with_prefix, make_directory, get_readable_runtime, get_readable_date
-from specific_utilities import load_data, make_name_and_path, add_results_string
-from specific_utilities import save_model_and_history, draw_model_diagram
-from utilities import get_root_path
+from utilities import join_omnilist_to_string_with_prefix, make_directory, get_readable_runtime, get_readable_date, get_root_path
+from specific_utilities import load_data, make_name_and_path, add_results_string, save_model_and_history, draw_model_diagram
 from review import plot_graph
 
 
