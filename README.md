@@ -1,5 +1,5 @@
-# Structuring-Machine-Learning-Projects_TF2_implementation
-Structuring Machine Learning final programming assignment TensorFlow 2.2 implementation
+# Improving_Deep_Neural_Networks_final_TF2_implementation
+TensorFlow2 implementation of Week3 (final) programming assignment
 
 pip install tensorflow
 
