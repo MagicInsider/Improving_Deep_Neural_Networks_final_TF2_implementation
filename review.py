@@ -24,7 +24,7 @@ def plot_graph(path):
                     histories['/'.join(entry.name.split('_')[:3])] = pickle.load(source)
             except NotADirectoryError:
                 pass
-    plt.figure(figsize=(11, 6))
+    plt.figure(figsize=(11, 6), sharex=True)
     for key, item in enumerate(histories):
         history = histories[item]
         metrics = list(history.keys())
